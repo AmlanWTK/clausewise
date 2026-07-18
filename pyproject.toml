@@ -1,0 +1,108 @@
+[project]
+name = "clausewise"
+version = "0.1.0"
+description = "Production-grade RAG system for legal contract Q&A over the CUAD dataset — clause-aware chunking, hybrid retrieval, re-ranking, grounded generation with citations, and a formal evaluation harness."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Amlan Sarkar", email = "amlansarkar738@gmail.com" }]
+keywords = ["rag", "retrieval-augmented-generation", "legal-nlp", "cuad", "pgvector"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Runtime dependencies are added checkpoint-by-checkpoint, never speculatively.
+dependencies = [
+    # Checkpoint 2: infra
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "psycopg[binary]>=3.2",      # sync driver, used only by Alembic migrations
+    "alembic>=1.14",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "structlog>=24.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pre-commit>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clausewise"]
+
+# ---------------------------------------------------------------------------
+# Ruff — linting + formatting (replaces black/isort/flake8)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+    "SIM",  # flake8-simplify
+    "TCH",  # type-checking imports
+    "PTH",  # pathlib over os.path
+    "RUF",  # ruff-specific
+    "S",    # bandit security checks
+    "T20",  # no stray print()
+    "ARG",  # unused arguments
+    "DTZ",  # timezone-aware datetimes
+]
+ignore = [
+    "S101",  # assert allowed (pytest relies on it; re-enabled per-file below is unnecessary)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "ARG"]      # security/arg rules are noise in tests
+"scripts/**" = ["T20"]         # CLIs may print
+
+[tool.ruff.lint.isort]
+known-first-party = ["clausewise"]
+
+# ---------------------------------------------------------------------------
+# Mypy — strict from day one
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+strict = true
+warn_unreachable = true
+show_error_codes = true
+pretty = true
+files = ["src", "tests"]
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --cov=clausewise --cov-report=term-missing"
+markers = [
+    "integration: requires running Postgres (docker compose up)",
+    "live_api: hits real external APIs (skipped by default in CI)",
+]
+
+[tool.coverage.run]
+source = ["src/clausewise"]
+branch = true

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment & secrets — never commit real env files
+.env
+.env.*
+!.env.example
+
+# Data (CUAD downloads + processed artifacts; fetched via scripts/)
+data/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Frontend (added in Checkpoint 19)
+node_modules/
+
+# Planning doc (local working file, not part of the repo's public story)
+PROJECT_PLAN.md

@@ -1,0 +1,25 @@
+# Pre-commit hooks: fast local quality gates before every commit.
+# SAVE THIS FILE AS: .pre-commit-config.yaml  (repo root)
+# Install once with: uv run pre-commit install
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=500"] # keeps data files out of git by accident
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff # lint (with autofix)
+        args: [--fix]
+      - id: ruff-format # format
+
+  # Mypy runs in CI (needs the full resolved environment); keeping it out of
+  # pre-commit keeps commits fast. Run manually with: uv run mypy
