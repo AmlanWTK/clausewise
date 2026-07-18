@@ -29,7 +29,9 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # --- Database ---
-    database_url: str = "postgresql+asyncpg://clausewise:clausewise@localhost:5432/clausewise"
+    # Port 5433 matches docker/compose.yml (5433 on the host to avoid clashing
+    # with locally installed PostgreSQL instances on 5432).
+    database_url: str = "postgresql+asyncpg://clausewise:clausewise@localhost:5433/clausewise"
 
     @property
     def sync_database_url(self) -> str:

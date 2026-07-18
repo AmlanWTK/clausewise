@@ -9,7 +9,9 @@ services:
       POSTGRES_PASSWORD: clausewise # local dev only; prod uses managed Postgres + secrets
       POSTGRES_DB: clausewise
     ports:
-      - "5432:5432"
+      # Host 5433 → container 5432: avoids clashing with any locally
+      # installed PostgreSQL service that owns the default port.
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
