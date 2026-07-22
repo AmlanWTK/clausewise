@@ -21,9 +21,14 @@ _WS_RE = re.compile(r"\s+")
 _NUM_RE = re.compile(r"\d+")
 
 _SHINGLE = 5
-_BANDS = 4
-_BAND_BITS = 16
-_HAMMING_THRESHOLD = 3
+# Threshold measured against realistic boilerplate variants: a one-word
+# substitution in a ~300-char clause lands around Hamming distance 4-5.
+HAMMING_THRESHOLD = 6
+# Pigeonhole guarantee: with 8 bands of 8 bits, any pair within 7 differing
+# bits shares at least one identical band — banding never misses a candidate
+# pair at our threshold. (4x16 would only guarantee distance <= 3.)
+_BANDS = 8
+_BAND_BITS = 8
 
 
 def normalize(text: str) -> str:
@@ -86,7 +91,7 @@ def find_duplicates(chunks: Sequence[Chunk]) -> dict[str, str]:
                     continue
                 if canonical.id in duplicate_of:
                     continue
-                if hamming(h, hashes[canonical.id]) <= _HAMMING_THRESHOLD:
+                if hamming(h, hashes[canonical.id]) <= HAMMING_THRESHOLD:
                     duplicate_of[chunk.id] = canonical.id
                     assigned = True
                     break

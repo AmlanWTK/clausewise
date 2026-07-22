@@ -1,7 +1,13 @@
 """Unit tests for SimHash near-duplicate detection."""
 
 from clausewise.domain import Chunk, ChunkMetadata
-from clausewise.ingestion.dedup import find_duplicates, hamming, normalize, simhash64
+from clausewise.ingestion.dedup import (
+    HAMMING_THRESHOLD,
+    find_duplicates,
+    hamming,
+    normalize,
+    simhash64,
+)
 
 BOILERPLATE = (
     "This Agreement may be executed in counterparts, each of which shall be "
@@ -33,7 +39,7 @@ def test_identical_text_same_hash() -> None:
 
 def test_near_identical_text_close_hash() -> None:
     variant = BOILERPLATE.replace("certified mail", "registered mail")
-    assert hamming(simhash64(BOILERPLATE), simhash64(variant)) <= 3
+    assert hamming(simhash64(BOILERPLATE), simhash64(variant)) <= HAMMING_THRESHOLD
 
 
 def test_different_text_distant_hash() -> None:

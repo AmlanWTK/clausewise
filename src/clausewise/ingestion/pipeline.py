@@ -105,7 +105,7 @@ def run_ingestion(
             continue
 
         with session_scope(session_factory) as session:
-            stats.written_contracts = _persist_contracts(session, cuad_contracts)
+            stats.written_contracts += _persist_contracts(session, cuad_contracts)
             stats.written_chunks += _persist_chunks(session, all_chunks, corpus)
 
     log.info(
@@ -140,8 +140,11 @@ def _persist_contracts(session: Session, cuad_contracts: list[CuadContract]) -> 
                 ]
             )
             .on_conflict_do_nothing(index_elements=["id"])
+            # RETURNING yields exactly the rows actually inserted — precise
+            # written-count regardless of driver rowcount semantics.
+            .returning(ContractRow.id)
         )
-        written += session.execute(stmt).rowcount or 0
+        written += len(session.execute(stmt).all())
     return written
 
 
@@ -169,6 +172,7 @@ def _persist_chunks(session: Session, chunks: list[Chunk], corpus: str) -> int:
                 ]
             )
             .on_conflict_do_nothing(index_elements=["id"])
+            .returning(ChunkRow.id)
         )
-        written += session.execute(stmt).rowcount or 0
+        written += len(session.execute(stmt).all())
     return written

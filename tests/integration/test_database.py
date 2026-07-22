@@ -38,6 +38,10 @@ def test_pgvector_extension_installed(engine: sa.Engine) -> None:
 
 
 def test_alembic_is_at_head(engine: sa.Engine) -> None:
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    expected_head = ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
     with engine.connect() as conn:
         version = conn.execute(sa.text("SELECT version_num FROM alembic_version")).scalar_one()
-    assert version == "0001"
+    assert version == expected_head, "database is behind — run: uv run alembic upgrade head"
