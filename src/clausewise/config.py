@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     # with locally installed PostgreSQL instances on 5432).
     database_url: str = "postgresql+asyncpg://clausewise:clausewise@localhost:5433/clausewise"
 
+    # --- Embeddings ---
+    # 384-dim BGE-small: strong retrieval quality per parameter, CPU-friendly,
+    # and fits the Supabase free tier. Must match migration 0003's vector(384).
+    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_dimensions: int = 384
+
     @property
     def sync_database_url(self) -> str:
         """Sync-driver variant of the database URL (Alembic migrations only)."""

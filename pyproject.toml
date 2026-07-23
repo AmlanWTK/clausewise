@@ -27,6 +27,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+# Local ML models (embeddings, reranker). Separate group: CI runs on fakes and
+# never installs torch; your dev machine needs: uv sync --group dev --group ml
+ml = ["sentence-transformers>=3.3"]
 dev = [
     "ruff>=0.8",
     "mypy>=1.13",
