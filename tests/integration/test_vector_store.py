@@ -99,8 +99,14 @@ async def test_upsert_then_search_ranks_by_similarity(
     written = await store.upsert(CORPUS, chunks, vectors, "test-model")
     assert written == 3
 
-    results = await store.search(CORPUS, _unit_vector(100), k=3)
-    vt = [r for r in results if r.chunk.id.startswith("vt_")]
+    # Scope to fixture contracts: the corpus also contains the real embedded
+    # CUAD chunks, which must not leak into this test's ranking.
+    vt = await store.search(
+        CORPUS,
+        _unit_vector(100),
+        k=3,
+        contract_ids=["vt_contract_1", "vt_contract_2"],
+    )
     assert vt[0].chunk.id == "vt_c2"
     assert vt[0].score == pytest.approx(1.0, abs=1e-4)
     assert vt[0].score > vt[1].score
